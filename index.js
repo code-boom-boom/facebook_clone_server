@@ -9,6 +9,7 @@ const http = require("http");
 const server = http.createServer(app);
 
 const AuthRoutes = require("./routes/Auth");
+const UserRoutes = require("./routes/User");
 
 const { PORT, MONGODB_URI } = require("./config");
 
@@ -16,6 +17,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", AuthRoutes);
+app.use("/api/user", UserRoutes);
 
 mongoose.connect(MONGODB_URI, {
     useNewUrlParser: true,
