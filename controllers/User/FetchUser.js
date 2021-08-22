@@ -1,5 +1,6 @@
 const User = require("../../models/User");
 const Notification = require("../../models/Notification");
+const FriendRequest = require("../../models/FriendRequest");
 
 const FilterUserData = require("../../utils/FilterUserData");
 
@@ -61,6 +62,24 @@ exports.fetchRecommendedUsers = async (req, res) => {
         const usersData = users.map((user) => FilterUserData(user));
 
         return res.status(200).json({ users: usersData });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+}
+
+exports.fetchSentFriendRequest = async (req, res) => {
+    try {
+        const friends = await FriendRequest.find({
+            $and: [{ isAccepted: false }, { sender: req.userId }]
+        }).populate("receiver");
+
+        const friendsData = friends.map((friend) => ({
+            id: friend.id,
+            user: FilterUserData(friend.receiver)
+        }));
+
+        return res.status(200).json({ friends: friendsData });
     } catch (err) {
         console.log(err);
         return res.status(500).json({ error: "Something went wrong" });
