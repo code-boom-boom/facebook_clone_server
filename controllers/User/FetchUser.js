@@ -85,3 +85,40 @@ exports.fetchSentFriendRequest = async (req, res) => {
         return res.status(500).json({ error: "Something went wrong" });
     }
 }
+
+exports.fetchIncomingFriendRequest = async (req, res) => {
+    try {
+        const friends = await FriendRequest.find({
+            $and: [{ isAccepted: false }, { receiver: req.userId }]
+        }).populate("sender", "_id name profile_pic active");
+
+        const friendsData = friends.map((friend) => ({
+            id: friend.id,
+            user: FilterUserData(friend.sender)
+        }));
+
+        return res.status(200).json({ friends: friendsData });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+}
+
+exports.searchUsers = async (req, res) => {
+    try {
+        console.log(req.query.name);
+        const users = await User.find({
+            name: {
+                $regex: req.query.name,
+                $options: ""
+            }
+        }).populate("friends");
+
+        const usersData = users.map((user) => FilterUserData(user));
+
+        return res.status(200).json({ users: usersData });
+    } catch (err) {
+        console.log(err);
+        return res.status(500).json({ error: "Something went wrong" });
+    }
+}
